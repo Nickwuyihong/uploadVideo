@@ -1,0 +1,1 @@
+<view class="content"><input class="uni-input" password type="text" placeholder="请输入密钥" data-event-opts="{{[['input',[['__set_model',['','token','$event',[]]]]]]}}" value="{{token}}" bindinput="__e"/><button class="but" type="primary" data-event-opts="{{[['tap',[['login']]]]}}" bindtap="__e">验证身份</button></view>

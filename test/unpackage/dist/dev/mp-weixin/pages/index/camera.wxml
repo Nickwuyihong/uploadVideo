@@ -1,0 +1,1 @@
+<view class="content"><camera style="width:100%;height:100%;" device-position="front" flash="off" data-event-opts="{{[['error',[['error',['$event']]]]]}}" binderror="__e"><cover-view style="height:100%;width:100%;display:flex;align-items:center;"><cover-view data-event-opts="{{[['tap',[['yqz']]]]}}" class="green" bindtap="__e"></cover-view></cover-view></camera></view>
