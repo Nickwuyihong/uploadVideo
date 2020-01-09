@@ -39,6 +39,7 @@
 			return {
 				tempThumbPath: [],
 				tempVideoPath: [],
+				tenVideos: [],
 				result: {},
 				src: "",
 				alpha: "",
@@ -91,6 +92,11 @@
 				that.tempVideoPath = JSON.parse(temp)
 				console.log(that.tempVideoPath[4])
 			},
+			set_tenVideos: function(temp) {
+				var that = this
+				that.tenVideos = JSON.parse(temp)
+				console.log(that.tenVideos[9])
+			},
 			changeVideo: function() {
 				var that = this
 				if (that.currentVideo < that.tempVideoPath.length) {
@@ -137,10 +143,11 @@
 					uni.showLoading({
 						title: "正在上传"
 					})
-					for (let i = 0; i < 1; i++) {
+					that.uploadTenVideo()
+					for (let i = 0; i < 5; i++) {
 						uni.uploadFile({
-							url: "http://localhost:54473/api/Values/postFiles?userName=" + that.user +
-								"&type=" + that.motion[i] + "&school=" + that.school, //服务器接口
+							url: "http://localhost:54473/api/postFiles?studentName=" + that.user +
+								"&studentNo=" + that.number + "&actionName=" + that.motion[i] + "&School=" + that.school, //服务器接口
 							method: 'POST', //这句话好像可以不用
 							filePath: that.tempVideoPath[i],
 							header: {
@@ -149,13 +156,13 @@
 							name: 'file', //服务器定义的Key值
 							success: function(res) {
 								console.log(res)
-								if (i == 0) {
-									uni.hideLoading()
-									that.$refs.popup.close()
-									uni.showToast({
-										title: "上传完成"
-									})
-								}
+								// if (i == 0) {
+								// 	uni.hideLoading()
+								// 	that.$refs.popup.close()
+								// 	uni.showToast({
+								// 		title: "上传完成"
+								// 	})
+								// }
 							},
 							fail: function(res) {
 								console.log(res)
@@ -170,6 +177,39 @@
 					uni.showToast({
 						title: "请输入姓名或学号",
 						icon: "none"
+					})
+				}
+			},
+			uploadTenVideo:function(){
+				let k = 0
+				for (let i = 0; i < 10; i++) {
+					k++
+					uni.uploadFile({
+						url: "http://localhost:54473/api/postCombineFiles?studentName=" + that.user
+						+ "&studentNo=" + that.number + "&School=" + that.school + "&videoNo=" + k, //服务器接口
+						method: 'POST', //这句话好像可以不用
+						filePath: that.tenVideos[i],
+						header: {
+							"Content-Type": "multipart/form-data"
+						},
+						name: 'file', //服务器定义的Key值
+						success: function(res) {
+							console.log(res)
+							if (i == 9) {
+								uni.hideLoading()
+								that.$refs.popup.close()
+								uni.showToast({
+									title: "上传完成"
+								})
+							}
+						},
+						fail: function(res) {
+							console.log(res)
+							uni.showToast({
+								title: "视频上传失败",
+								icon: "none"
+							})
+						}
 					})
 				}
 			},

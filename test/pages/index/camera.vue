@@ -14,6 +14,7 @@
 			return {
 				tempThumbPath: [],
 				tempVideoPath: [],
+				tenVideos: [],
 				result: {},
 				src: "",
 				alpha: "",
@@ -28,6 +29,66 @@
 			that.ctx = uni.createCameraContext()
 		},
 		methods: {
+			yqz2: function() {
+				var that = this
+				uni.showToast({
+					title: "模拟考试录制开始",
+					icon: "none"
+				})
+				that.ctx.startRecord({
+					success: (res) => {
+						console.log(res)
+						for (let count = 0; count < 10; count++) {
+							(function(num) {
+								setTimeout(function() {
+									console.log(num)
+									uni.showToast({
+										title: "请看着屏幕",
+										icon: "none"
+									})
+									setTimeout(function() {
+										that.ctx.stopRecord({
+											success: (res) => {
+												console.log(res)
+												that.tenVideos[num] = res.tempVideoPath
+												that.time = 0
+												if (num < 9) {
+													that.ctx.startRecord({
+														success: (res) => {
+															console.log(res)
+														}
+													})
+												} else {
+													uni.showToast({
+														title: "第二段录制结束",
+														icon: "none"
+													})
+													var pages = getCurrentPages();
+													if (pages.length > 1) {
+														//上一个页面实例对象
+														var prePage = pages[pages.length - 2];
+														//关键在这里
+														prePage.$vm.set_tempVideoPath(JSON.stringify(that.tempVideoPath))
+														prePage.$vm.set_tenVideos(JSON.stringify(that.set_tenVideos))
+														setTimeout(function() {
+															uni.navigateBack({
+																delta: 1
+															})
+														}, 2000)
+													}
+												}
+											},
+											fail: (e) => {
+												console.log(e)
+											}
+										})
+									}, 30000)
+								}, num * 30000)
+							})(count)
+						}
+					}
+				})
+			}
 			yqz: function() {
 				var that = this
 				uni.showToast({
@@ -68,7 +129,7 @@
 				that.ctx.startRecord({
 					success: (res) => {
 						console.log(res)
-						for (let count = 0; count < 5; count++) {
+						for (let count = 0; count < 6; count++) {
 							(function(num) {
 								setTimeout(function() {
 									console.log(num)
@@ -143,21 +204,22 @@
 													})
 												} else {
 													uni.showToast({
-														title: "录制结束",
+														title: "第一段录制结束",
 														icon: "none"
 													})
-													var pages = getCurrentPages();
-													if (pages.length > 1) {
-														//上一个页面实例对象
-														var prePage = pages[pages.length - 2];
-														//关键在这里
-														prePage.$vm.set_tempVideoPath(JSON.stringify(that.tempVideoPath))
-														setTimeout(function() {
-															uni.navigateBack({
-																delta: 1
-															})
-														}, 2000)
-													}
+													that.yqz2()
+													// var pages = getCurrentPages();
+													// if (pages.length > 1) {
+													// 	//上一个页面实例对象
+													// 	var prePage = pages[pages.length - 2];
+													// 	//关键在这里
+													// 	prePage.$vm.set_tempVideoPath(JSON.stringify(that.tempVideoPath))
+													// 	setTimeout(function() {
+													// 		uni.navigateBack({
+													// 			delta: 1
+													// 		})
+													// 	}, 2000)
+													// }
 												}
 											},
 											fail: (e) => {
@@ -173,7 +235,7 @@
 			},
 			error(e) {
 				console.log(e.detail)
-			},
+			}
 		}
 	}
 </script>
