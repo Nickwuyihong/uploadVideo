@@ -149,6 +149,7 @@ var _default =
     return {
       tempThumbPath: [],
       tempVideoPath: [],
+      tenVideos: [],
       result: {},
       src: "",
       alpha: "",
@@ -163,43 +164,70 @@ var _default =
     that.ctx = uni.createCameraContext();
   },
   methods: {
+    yqz2: function yqz2() {
+      var that = this;
+      uni.showToast({
+        title: "模拟考试录制开始",
+        icon: "none" });
+
+      that.ctx.startRecord({
+        success: function success(res) {
+          console.log(res);
+          for (var count = 0; count < 10; count++) {
+            (function (num) {
+              setTimeout(function () {
+                uni.showToast({
+                  title: "请看着屏幕" + num,
+                  icon: "none" });
+
+                setTimeout(function () {
+                  that.ctx.stopRecord({
+                    success: function success(res) {
+                      console.log(res);
+                      that.tenVideos[num] = res.tempVideoPath;
+                      if (num < 9) {
+                        that.ctx.startRecord({
+                          success: function success(res) {
+                            console.log(res);
+                          } });
+
+                      } else {
+                        uni.showToast({
+                          title: "第二段录制结束",
+                          icon: "none" });
+
+                        var pages = getCurrentPages();
+                        if (pages.length > 1) {
+                          //上一个页面实例对象
+                          var prePage = pages[pages.length - 2];
+                          //关键在这里
+                          prePage.$vm.set_tempVideoPath(JSON.stringify(that.tempVideoPath));
+                          prePage.$vm.set_tenVideos(JSON.stringify(that.tenVideos));
+                          setTimeout(function () {
+                            uni.navigateBack({
+                              delta: 1 });
+
+                          }, 2000);
+                        }
+                      }
+                    },
+                    fail: function fail(e) {
+                      console.log(e);
+                    } });
+
+                }, 28000);
+              }, num * 31000);
+            })(count);
+          }
+        } });
+
+    },
     yqz: function yqz() {
       var that = this;
       uni.showToast({
         title: "录制开始",
         icon: "none" });
 
-      // that.ctx.startRecord({
-      // 	success: (res) => {
-      // 		console.log(res)
-      // 		setTimeout(function() {
-      // 			that.ctx.stopRecord({
-      // 				success: (res) => {
-      // 					console.log(res)
-      // 					that.tempThumbPath.push(res.tempThumbPath)
-      // 					that.tempVideoPath.push(res.tempVideoPath)
-
-      // 					that.time = 0
-      // 					var pages = getCurrentPages();
-      // 					if (pages.length > 1) {
-      // 						//上一个页面实例对象
-      // 						var prePage = pages[pages.length - 2];
-      // 						//关键在这里
-      // 						prePage.$vm.set_tempVideoPath(JSON.stringify(that.tempVideoPath))
-      // 						setTimeout(function() {
-      // 							uni.navigateBack({
-      // 								delta: 1
-      // 							})
-      // 						}, 2000)
-      // 					}
-      // 				},
-      // 				fail: (e) => {
-      // 					console.log(e)
-      // 				}
-      // 			})
-      // 		}, 5000)
-      // 	}
-      // })
       that.ctx.startRecord({
         success: function success(res) {
           console.log(res);
@@ -269,7 +297,6 @@ var _default =
                       console.log(res);
                       that.tempThumbPath[num] = res.tempThumbPath;
                       that.tempVideoPath[num] = res.tempVideoPath;
-                      that.time = 0;
                       if (num < 4) {
                         that.ctx.startRecord({
                           success: function success(res) {
@@ -277,22 +304,12 @@ var _default =
                           } });
 
                       } else {
+                        console.log(num);
                         uni.showToast({
-                          title: "录制结束",
+                          title: "第一段录制结束",
                           icon: "none" });
 
-                        var pages = getCurrentPages();
-                        if (pages.length > 1) {
-                          //上一个页面实例对象
-                          var prePage = pages[pages.length - 2];
-                          //关键在这里
-                          prePage.$vm.set_tempVideoPath(JSON.stringify(that.tempVideoPath));
-                          setTimeout(function () {
-                            uni.navigateBack({
-                              delta: 1 });
-
-                          }, 2000);
-                        }
+                        that.yqz2();
                       }
                     },
                     fail: function fail(e) {

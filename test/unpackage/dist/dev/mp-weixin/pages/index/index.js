@@ -308,6 +308,7 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ../../App.vue */ 9));f
     return {
       tempThumbPath: [],
       tempVideoPath: [],
+      tenVideos: [],
       result: {},
       src: "",
       alpha: "",
@@ -330,11 +331,11 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ../../App.vue */ 9));f
     that.ctx = uni.createCameraContext();
     that.videoContext = uni.createVideoContext('myVideo');
     console.log(that.videoContext);
-    //that.detect()
+    that.detect();
   },
   onShow: function onShow() {
     var that = this;
-    //that.detect()
+    that.detect();
   },
   methods: {
     bindPickerChange: function bindPickerChange(e) {
@@ -358,7 +359,12 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ../../App.vue */ 9));f
     set_tempVideoPath: function set_tempVideoPath(temp) {
       var that = this;
       that.tempVideoPath = JSON.parse(temp);
-      console.log(that.tempVideoPath[4]);
+      console.log(that.tempVideoPath.length);
+    },
+    set_tenVideos: function set_tenVideos(temp) {
+      var that = this;
+      that.tenVideos = JSON.parse(temp);
+      console.log(that.tenVideos.length);
     },
     changeVideo: function changeVideo() {
       var that = this;
@@ -396,6 +402,31 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ../../App.vue */ 9));f
         }
       });
     },
+    uploadimg: function uploadimg() {
+      var that = this;
+      uni.chooseVideo({
+        count: 1,
+        sourceType: ['camera', 'album'],
+        success: function success(res) {
+          uni.uploadFile({
+            url: "http://149.28.73.240/api/postFiles?studentName=werew&studentNo=3423&actionName=" + that.motion[0] +
+            "&School=华南农业大学", //服务器接口
+            method: 'POST', //这句话好像可以不用
+            filePath: res.tempFilePath,
+            header: {
+              "Content-Type": "multipart/form-data" },
+
+            name: 'file', //服务器定义的Key值
+            success: function success(res) {
+              console.log(res);
+            },
+            fail: function fail(res) {
+              console.log(res);
+            } });
+
+        } });
+
+    },
     upload: function upload() {
       var that = this;
       console.log(that.user);
@@ -404,12 +435,15 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ../../App.vue */ 9));f
       console.log(that.tempVideoPath[0]);
       if (that.user.length > 0 && that.number.length > 0) {
         uni.showLoading({
-          title: "正在上传" });var _loop = function _loop(
+          title: "正在上传" });
 
-        i) {
+        that.uploadTenVideo();
+        for (var i = 0; i < 5; i++) {
           uni.uploadFile({
-            url: "http://localhost:54473/api/Values/postFiles?userName=" + that.user +
-            "&type=" + that.motion[i] + "&school=" + that.school, //服务器接口
+            url: "http://149.28.73.240/api/postFiles?studentName=" + that.user +
+            "&studentNo=" + that.number + "&actionName=" + that.motion[i] + "&School=" + that.school, //服务器接口
+            // url:"http://localhost:54473/api/Values/postFiles?userName=" + that.user + "&type=" + that.motion[i] 
+            // 	+ "&school=" + that.school,
             method: 'POST', //这句话好像可以不用
             filePath: that.tempVideoPath[i],
             header: {
@@ -418,13 +452,6 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ../../App.vue */ 9));f
             name: 'file', //服务器定义的Key值
             success: function success(res) {
               console.log(res);
-              if (i == 0) {
-                uni.hideLoading();
-                that.$refs.popup.close();
-                uni.showToast({
-                  title: "上传完成" });
-
-              }
             },
             fail: function fail(res) {
               console.log(res);
@@ -432,13 +459,47 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ../../App.vue */ 9));f
                 title: "视频上传失败",
                 icon: "none" });
 
-            } });};for (var i = 0; i < 1; i++) {_loop(i);
+            } });
 
         }
       } else {
         uni.showToast({
           title: "请输入姓名或学号",
           icon: "none" });
+
+      }
+    },
+    uploadTenVideo: function uploadTenVideo() {
+      var that = this;
+      var k = 0;var _loop = function _loop(
+      i) {
+        k++;
+        uni.uploadFile({
+          url: "http://149.28.73.240/api/postCombineFiles?studentName=" + that.user +
+          "&studentNo=" + that.number + "&School=" + that.school + "&videoNo=" + k, //服务器接口
+          method: 'POST', //这句话好像可以不用
+          filePath: that.tenVideos[i],
+          header: {
+            "Content-Type": "multipart/form-data" },
+
+          name: 'file', //服务器定义的Key值
+          success: function success(res) {
+            console.log(res);
+            if (i == 9) {
+              uni.hideLoading();
+              that.$refs.popup.close();
+              uni.showToast({
+                title: "上传完成" });
+
+            }
+          },
+          fail: function fail(res) {
+            console.log(res);
+            uni.showToast({
+              title: "视频上传失败",
+              icon: "none" });
+
+          } });};for (var i = 0; i < 10; i++) {_loop(i);
 
       }
     },

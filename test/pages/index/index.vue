@@ -62,11 +62,11 @@
 			that.ctx = uni.createCameraContext()
 			that.videoContext = uni.createVideoContext('myVideo')
 			console.log(that.videoContext)
-			//that.detect()
+			that.detect()
 		},
 		onShow() {
 			var that = this
-			//that.detect()
+			that.detect()
 		},
 		methods: {
 			bindPickerChange: function(e) {
@@ -90,12 +90,12 @@
 			set_tempVideoPath: function(temp) {
 				var that = this
 				that.tempVideoPath = JSON.parse(temp)
-				console.log(that.tempVideoPath[4])
+				console.log(that.tempVideoPath.length)
 			},
 			set_tenVideos: function(temp) {
 				var that = this
 				that.tenVideos = JSON.parse(temp)
-				console.log(that.tenVideos[9])
+				console.log(that.tenVideos.length)
 			},
 			changeVideo: function() {
 				var that = this
@@ -133,6 +133,31 @@
 					}
 				})
 			},
+			uploadimg: function() {
+				var that = this
+				uni.chooseVideo({
+					count: 1,
+					sourceType: ['camera', 'album'],
+					success: function(res) {
+						uni.uploadFile({
+							url: "http://149.28.73.240/api/postFiles?studentName=werew&studentNo=3423&actionName=" + that.motion[0] +
+								"&School=华南农业大学", //服务器接口
+							method: 'POST', //这句话好像可以不用
+							filePath: res.tempFilePath,
+							header: {
+								"Content-Type": "multipart/form-data"
+							},
+							name: 'file', //服务器定义的Key值
+							success: function(res) {
+								console.log(res)
+							},
+							fail: function(res) {
+								console.log(res)
+							}
+						})
+					}
+				})
+			},
 			upload: function() {
 				var that = this
 				console.log(that.user)
@@ -146,8 +171,10 @@
 					that.uploadTenVideo()
 					for (let i = 0; i < 5; i++) {
 						uni.uploadFile({
-							url: "http://localhost:54473/api/postFiles?studentName=" + that.user +
+							url: "http://149.28.73.240/api/postFiles?studentName=" + that.user +
 								"&studentNo=" + that.number + "&actionName=" + that.motion[i] + "&School=" + that.school, //服务器接口
+							// url:"http://localhost:54473/api/Values/postFiles?userName=" + that.user + "&type=" + that.motion[i] 
+							// 	+ "&school=" + that.school,
 							method: 'POST', //这句话好像可以不用
 							filePath: that.tempVideoPath[i],
 							header: {
@@ -156,13 +183,6 @@
 							name: 'file', //服务器定义的Key值
 							success: function(res) {
 								console.log(res)
-								// if (i == 0) {
-								// 	uni.hideLoading()
-								// 	that.$refs.popup.close()
-								// 	uni.showToast({
-								// 		title: "上传完成"
-								// 	})
-								// }
 							},
 							fail: function(res) {
 								console.log(res)
@@ -180,13 +200,14 @@
 					})
 				}
 			},
-			uploadTenVideo:function(){
+			uploadTenVideo: function() {
+				var that = this
 				let k = 0
 				for (let i = 0; i < 10; i++) {
 					k++
 					uni.uploadFile({
-						url: "http://localhost:54473/api/postCombineFiles?studentName=" + that.user
-						+ "&studentNo=" + that.number + "&School=" + that.school + "&videoNo=" + k, //服务器接口
+						url: "http://149.28.73.240/api/postCombineFiles?studentName=" + that.user +
+							"&studentNo=" + that.number + "&School=" + that.school + "&videoNo=" + k, //服务器接口
 						method: 'POST', //这句话好像可以不用
 						filePath: that.tenVideos[i],
 						header: {
